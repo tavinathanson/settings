@@ -7,11 +7,13 @@
 DIR_NAME=$(basename "$(pwd)" | tr '.' '_')
 SESSION_NAME="${1:-$DIR_NAME}"
 
-# Kill existing session if it exists
-tmux kill-session -t "$SESSION_NAME" 2>/dev/null
-
-# Create and attach in one go
-tmux new-session -s "$SESSION_NAME" -c "$(pwd)" \; \
-  split-window -h -c "$(pwd)" \; \
-  split-window -v -c "$(pwd)" \; \
-  select-layout main-vertical
+# Check if session exists and attach, otherwise create new
+if tmux has-session -t "$SESSION_NAME" 2>/dev/null; then
+    tmux attach-session -t "$SESSION_NAME"
+else
+    # Create and attach in one go
+    tmux new-session -s "$SESSION_NAME" -c "$(pwd)" \; \
+      split-window -h -c "$(pwd)" \; \
+      split-window -v -c "$(pwd)" \; \
+      select-layout main-vertical
+fi
